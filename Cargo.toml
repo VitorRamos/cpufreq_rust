@@ -2,5 +2,9 @@
 name = "cpufreq"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+keywords = ["cpufreq", "frequency"]
+description = "Wrapper arround the cpufreq fs"
+repository = "https://github.com/VitorRamos/cpufreq_rust"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
