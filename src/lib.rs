@@ -1,5 +1,5 @@
 #![feature(test)]
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 
@@ -68,7 +68,22 @@ impl CpuFreq for CPU {
 }
 
 impl CPU {
-    fn new() -> Result<Self, std::io::Error> {
+    fn new() -> Result<Self, CpuFreqError> {
+        if std::env::consts::OS != "linux" {
+            let err =
+                std::io::Error::new(std::io::ErrorKind::Unsupported, "Only supported on Linux");
+            return Err(Box::new(err));
+        }
+        let driver: String = Self::get_variable(0, "scaling_driver")?;
+        match driver.as_str() {
+            "acpi-cpufreq" => {}
+            "intel-pstate" => {}
+            _ => {
+                let err =
+                    std::io::Error::new(std::io::ErrorKind::Unsupported, "Only supported driver");
+                return Err(Box::new(err));
+            }
+        };
         Ok(CPU {})
     }
     fn online(&self) -> Result<Vec<usize>, CpuFreqError> {
@@ -93,31 +108,65 @@ impl CPU {
         }
         Ok(res)
     }
-    fn set_frequencies<T: ToString>(freq: T) -> Result<(), CpuFreqError> {
+    fn set_frequencies<T: ToString>(&self, freq: T) -> Result<(), CpuFreqError> {
         CPU::set_variable_all("scaling_setspeed", &freq.to_string())?;
         CPU::set_variable_all("scaling_max_freq", &freq.to_string())?;
         CPU::set_variable_all("scaling_min_freq", &freq.to_string())?;
         Ok(())
     }
-    fn set_governors(gov: &str) -> Result<(), CpuFreqError> {
+    fn set_max_frequencies<T: ToString>(&self, freq: T) -> Result<(), CpuFreqError> {
+        CPU::set_variable_all("scaling_max_freq", &freq.to_string())?;
+        Ok(())
+    }
+    fn set_min_frequencies<T: ToString>(&self, freq: T) -> Result<(), CpuFreqError> {
+        CPU::set_variable_all("scaling_min_freq", &freq.to_string())?;
+        Ok(())
+    }
+    fn set_governors(&self, gov: &str) -> Result<(), CpuFreqError> {
         Ok(CPU::set_variable_all("scaling_governor", &gov)?)
     }
-    fn enable(id: usize) -> Result<(), CpuFreqError> {
-        Ok(CPU::set_variable(id, "online", "1")?)
+    fn enable(&self, id: usize) -> Result<(), CpuFreqError> {
+        Ok(CPU::write_file(&format!("cpu{id}/online"), "1")?)
     }
-    fn disable(id: usize) -> Result<(), CpuFreqError> {
-        Ok(CPU::set_variable(id, "online", "0")?)
+    fn disable(&self, id: usize) -> Result<(), CpuFreqError> {
+        Ok(CPU::write_file(&format!("cpu{id}/online"), "0")?)
     }
-    fn enable_all() -> Result<(), CpuFreqError> {
+    fn enable_all(&self) -> Result<(), CpuFreqError> {
         for cpu in CPU::get_ranges("present")? {
-            Self::enable(cpu)?;
+            if cpu != 0 {
+                self.enable(cpu)?;
+            }
         }
         Ok(())
     }
-    fn disable_all() -> Result<(), CpuFreqError> {
+    fn disable_all(&self) -> Result<(), CpuFreqError> {
         for cpu in CPU::get_ranges("present")? {
-            Self::disable(cpu)?;
+            if cpu != 0 {
+                self.disable(cpu)?;
+            }
         }
+        Ok(())
+    }
+    fn disable_hyperthread(&self) -> Result<(), CpuFreqError> {
+        let mut to_disable = HashSet::new();
+        for cpu in CPU::get_ranges("online")? {
+            let path = format!("cpu{cpu}/topology/thread_siblings_list");
+            let cpu_data = Self::get_ranges(&path)?;
+            to_disable.insert(cpu_data[1]);
+        }
+        for cpu in to_disable {
+            self.disable(cpu)?;
+        }
+        Ok(())
+    }
+    fn reset(&self) -> Result<(), CpuFreqError> {
+        self.enable_all()?;
+        self.set_governors("schedutil")?;
+        let avail_freqs = self.available_frequencies()?;
+        let max_freq = avail_freqs.get(&0).unwrap().iter().max().unwrap();
+        let min_freq = avail_freqs.get(&0).unwrap().iter().min().unwrap();
+        self.set_max_frequencies(max_freq)?;
+        self.set_min_frequencies(min_freq)?;
         Ok(())
     }
 }
@@ -134,7 +183,7 @@ mod tests {
             fn $method(b: &mut Bencher) {
                 b.iter(|| {
                     let cpu = CPU::new().unwrap();
-                    for v in cpu.$method().unwrap() {}
+                    for _ in cpu.$method().unwrap() {}
                 });
             }
         };
@@ -146,4 +195,61 @@ mod tests {
     test_method!(max_frequencies);
     test_method!(min_frequencies);
     test_method!(available_frequencies);
+
+    #[test]
+    fn disable() {
+        let cpu = CPU::new().unwrap();
+        cpu.enable_all().unwrap();
+        let online_before = cpu.online().unwrap();
+        cpu.disable(1).unwrap();
+        cpu.disable(4).unwrap();
+        let online_after = cpu.online().unwrap();
+        assert!(
+            online_after.len() < online_before.len(),
+            "{} should be less than {}",
+            online_after.len(),
+            online_before.len()
+        );
+        let mut x: Vec<&usize> = online_before
+            .iter()
+            .filter(|x| !online_after.contains(x))
+            .collect();
+        x.sort();
+        assert_eq!(x.len(), 2);
+        assert_eq!(*x[0], 1);
+        assert_eq!(*x[1], 4);
+        cpu.enable_all().unwrap();
+    }
+    #[test]
+    fn enable() {
+        let cpu = CPU::new().unwrap();
+        cpu.disable_all().unwrap();
+        let online_before = cpu.online().unwrap();
+        cpu.enable(1).unwrap();
+        cpu.enable(4).unwrap();
+        let online_after = cpu.online().unwrap();
+        assert!(
+            online_after.len() > online_before.len(),
+            "{} should be less than {}",
+            online_after.len(),
+            online_before.len()
+        );
+        let mut x: Vec<usize> = cpu.online().unwrap();
+        x.sort();
+        assert_eq!(x.len(), 3);
+        assert_eq!(x[0], 0);
+        assert_eq!(x[1], 1);
+        assert_eq!(x[2], 4);
+        cpu.enable_all().unwrap();
+    }
+    #[test]
+    fn hyperthread() {
+        let cpu = CPU::new().unwrap();
+        cpu.disable_hyperthread().unwrap();
+    }
+    #[test]
+    fn reset() {
+        let cpu = CPU::new().unwrap();
+        cpu.reset().unwrap();
+    }
 }
