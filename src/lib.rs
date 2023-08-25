@@ -1,5 +1,4 @@
 //! Wrapper arround the cpufreq fs
-#![feature(test)]
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
@@ -350,17 +349,13 @@ impl CPU {
 #[cfg(test)]
 mod tests {
     use super::*;
-    extern crate test;
-    use test::Bencher;
 
     macro_rules! test_method {
         ($method: ident) => {
-            #[bench]
-            fn $method(b: &mut Bencher) {
-                b.iter(|| {
-                    let cpu = CPU::new().unwrap();
-                    for _ in cpu.$method().unwrap() {}
-                });
+            #[test]
+            fn $method() {
+                let cpu = CPU::new().unwrap();
+                for _ in cpu.$method().unwrap() {}
             }
         };
     }
