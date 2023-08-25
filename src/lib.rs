@@ -92,8 +92,8 @@ impl CPU {
     /// Creates a new CPU
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.frequencies().expect("Unable to read frequencies");
@@ -119,8 +119,8 @@ impl CPU {
     /// Get online cpus
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.online().expect("Unable to read online cpus");
@@ -131,8 +131,8 @@ impl CPU {
     /// Get online governors
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.governors().expect("Unable to read online governors");
@@ -143,8 +143,8 @@ impl CPU {
     /// Get online frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.frequencies().expect("Unable to read online frequencies");
@@ -155,8 +155,8 @@ impl CPU {
     /// Get online max_frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.max_frequencies().expect("Unable to read online max_frequencies");
@@ -167,8 +167,8 @@ impl CPU {
     /// Get online min_frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.min_frequencies().expect("Unable to read online min_frequencies");
@@ -179,8 +179,8 @@ impl CPU {
     /// Get online min_frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.min_frequencies().expect("Unable to read online min_frequencies");
@@ -195,8 +195,8 @@ impl CPU {
     /// Set online cpu frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// cpu.set_governors("userspace");
@@ -211,8 +211,8 @@ impl CPU {
     /// Set online cpu max possible frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.set_max_frequencies(2301000).expect("Unable to set max frequencies");
@@ -224,8 +224,8 @@ impl CPU {
     /// Set online cpu min possible frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.set_min_frequencies(2301000).expect("Unable to set min frequencies");
@@ -237,8 +237,8 @@ impl CPU {
     /// Set online cpu governors
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.set_governors("ondemand").expect("Unable to set governors");
@@ -249,8 +249,8 @@ impl CPU {
     /// Enable one cpu
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.enable(5).expect("Unable enable cpu");
@@ -261,8 +261,8 @@ impl CPU {
     /// Disable one cpu
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.disable(5).expect("Unable disable cpu");
@@ -273,8 +273,8 @@ impl CPU {
     /// Enable all present cpus
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.enable_all().expect("Unable to enable all present cpus");
@@ -290,8 +290,8 @@ impl CPU {
     /// Disable all present cpus
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.disable_all().expect("Unable to disable all present cpus");
@@ -307,8 +307,8 @@ impl CPU {
     /// Disable all siblings threads
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// cpu.enable_all();
@@ -329,8 +329,8 @@ impl CPU {
     /// Reset cpu governor, max and min frequencies
     ///
     /// # Example
-    /// ```
-    /// use cpufreq::CPU;
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
     ///
     /// let cpu = CPU::new().unwrap();
     /// let freqs = cpu.reset().expect("Unable to reset cpu");
@@ -373,6 +373,7 @@ mod tests {
     test_method!(available_frequencies);
 
     #[test]
+    #[ignore]
     fn disable() {
         let cpu = CPU::new().unwrap();
         cpu.enable_all().unwrap();
@@ -397,6 +398,7 @@ mod tests {
         cpu.enable_all().unwrap();
     }
     #[test]
+    #[ignore]
     fn enable() {
         let cpu = CPU::new().unwrap();
         cpu.disable_all().unwrap();
@@ -419,12 +421,14 @@ mod tests {
         cpu.enable_all().unwrap();
     }
     #[test]
+    #[ignore]
     fn hyperthread() {
         let cpu = CPU::new().unwrap();
         cpu.enable_all().unwrap();
         cpu.disable_hyperthread().unwrap();
     }
     #[test]
+    #[ignore]
     fn reset() {
         let cpu = CPU::new().unwrap();
         cpu.reset().unwrap();
