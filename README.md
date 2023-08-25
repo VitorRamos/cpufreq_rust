@@ -1,5 +1,7 @@
 # cpufreq_lib
 
+[![Rust](https://github.com/VitorRamos/cpufreq_rust/actions/workflows/rust.yml/badge.svg)](https://github.com/VitorRamos/cpufreq_rust/actions/workflows/rust.yml)
+
 Wrapper around cpu filesystem (/sys/devices/system/cpu/) to control various aspects.
 
 ## Features
