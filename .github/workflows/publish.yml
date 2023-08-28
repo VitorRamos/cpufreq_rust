@@ -17,4 +17,4 @@ jobs:
     - name: Build
       run: cargo build --release --verbose
     - name: Publish
-      run: cargo login <<< ${{ CARGO_REGISTRY_TOKEN }} && cargo publish
+      run: cargo login <<< ${{ secrets.CARGO_REGISTRY_TOKEN }} && cargo publish
