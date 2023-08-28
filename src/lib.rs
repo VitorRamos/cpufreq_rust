@@ -127,6 +127,18 @@ impl CPU {
     pub fn online(&self) -> Result<Vec<usize>, CpuFreqError> {
         Ok(CPU::get_ranges("online")?)
     }
+    /// Get present cpus
+    ///
+    /// # Example
+    /// ```ignore
+    /// use cpufreq_lib::CPU;
+    ///
+    /// let cpu = CPU::new().unwrap();
+    /// let freqs = cpu.present().expect("Unable to read present cpus");
+    /// ```
+    pub fn present(&self) -> Result<Vec<usize>, CpuFreqError> {
+        Ok(CPU::get_ranges("present")?)
+    }
     /// Get online governors
     ///
     /// # Example
