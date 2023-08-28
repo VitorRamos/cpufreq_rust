@@ -32,8 +32,8 @@ pub trait CpuFreq {
     fn get_ranges(fname: &str) -> Result<Vec<usize>, std::io::Error> {
         let range = Self::read_file(fname)?;
         let mut l: Vec<usize> = Vec::new();
-        for r in range.split(",") {
-            let mr: Vec<usize> = r.split("-").map(|x| x.trim().parse().unwrap()).collect();
+        for r in range.split(',') {
+            let mr: Vec<usize> = r.split('-').map(|x| x.trim().parse().unwrap()).collect();
             if mr.len() == 2 {
                 l.extend(mr[0]..=mr[1]);
             } else {
@@ -149,7 +149,7 @@ impl CPU {
     /// let freqs = cpu.governors().expect("Unable to read online governors");
     /// ```
     pub fn governors(&self) -> Result<HashMap<usize, String>, CpuFreqError> {
-        Ok(CPU::get_variable_all("scaling_governor")?)
+        CPU::get_variable_all("scaling_governor")
     }
     /// Get online frequencies
     ///
@@ -161,7 +161,7 @@ impl CPU {
     /// let freqs = cpu.frequencies().expect("Unable to read online frequencies");
     /// ```
     pub fn frequencies(&self) -> Result<HashMap<usize, u64>, CpuFreqError> {
-        Ok(CPU::get_variable_all("scaling_cur_freq")?)
+        CPU::get_variable_all("scaling_cur_freq")
     }
     /// Get online max_frequencies
     ///
@@ -173,7 +173,7 @@ impl CPU {
     /// let freqs = cpu.max_frequencies().expect("Unable to read online max_frequencies");
     /// ```
     pub fn max_frequencies(&self) -> Result<HashMap<usize, u64>, CpuFreqError> {
-        Ok(CPU::get_variable_all("scaling_cur_freq")?)
+        CPU::get_variable_all("scaling_cur_freq")
     }
     /// Get online min_frequencies
     ///
@@ -185,7 +185,7 @@ impl CPU {
     /// let freqs = cpu.min_frequencies().expect("Unable to read online min_frequencies");
     /// ```
     pub fn min_frequencies(&self) -> Result<HashMap<usize, u64>, CpuFreqError> {
-        Ok(CPU::get_variable_all("scaling_cur_freq")?)
+        CPU::get_variable_all("scaling_cur_freq")
     }
     /// Get online min_frequencies
     ///
@@ -199,7 +199,7 @@ impl CPU {
     pub fn available_frequencies(&self) -> Result<HashMap<usize, Vec<u64>>, CpuFreqError> {
         let mut res = HashMap::new();
         for (cpu, freq) in CPU::get_variable_all::<String>("scaling_available_frequencies")? {
-            res.insert(cpu, freq.split(" ").map(|x| x.parse().unwrap()).collect());
+            res.insert(cpu, freq.split(' ').map(|x| x.parse().unwrap()).collect());
         }
         Ok(res)
     }
@@ -255,7 +255,7 @@ impl CPU {
     /// let freqs = cpu.set_governors("ondemand").expect("Unable to set governors");
     /// ```
     pub fn set_governors(&self, gov: &str) -> Result<(), CpuFreqError> {
-        Ok(CPU::set_variable_all("scaling_governor", &gov)?)
+        Ok(CPU::set_variable_all("scaling_governor", gov)?)
     }
     /// Enable one cpu
     ///
